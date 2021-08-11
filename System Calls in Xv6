@@ -1,0 +1,54 @@
+//System calls I created for XV6 in C
+//Doesnt include additions to makefile etc
+//proc.c
+int
+sys_numproc(void)
+{
+  struct proc *p;
+  int count=0;
+  acquire(&ptable.lock);//Ptable is array of all processes, aquire this and lock to prevent change
+  
+  for(p = ptable.proc; p < &ptable.proc[NPROC]; p++)//Loop through active processes using pointer, checking number and add 1 to process to 'move pointer'
+  {
+    if(p->state != UNUSED)
+    count++; //If process state is being used, count toward total
+  }
+  
+  release(&ptable.lock);//Release ptable
+  
+  return count;//Return number of counted processes
+}
+
+int
+sys_getmaxpid(void)
+{
+    struct proc *p;
+    int maxPid = -100;
+    acquire(&ptable.lock);
+    
+    for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
+    	
+    	if(p->pid >= maxPid){
+    		maxPid = (p->pid);
+		      }
+	}
+    
+     release(&ptable.lock);
+     return maxPid;
+}
+//
+
+//TESTING FILES
+#include "types.h"
+#include "stat.h"
+#include "user.h"
+#include "fs.h"
+
+int
+main(void)
+{
+	printf(1, "\nNo of Processes: %d\n", numproc());
+	printf(1, "\nMax Process Id Number: %d\n",getmaxpid());
+	exit();
+}
+
